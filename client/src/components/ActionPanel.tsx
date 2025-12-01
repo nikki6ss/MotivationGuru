@@ -1,7 +1,16 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { RotateCcw, Zap, Wind, BookOpen, Droplets, Music } from "lucide-react";
+import { RotateCcw, Zap, Wind, BookOpen, Droplets, Music, Eye, EyeOff } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+
+interface ActionPanelProps {
+  onReset: () => void;
+  waterCount: number;
+  onWaterAdd: () => void;
+  onSpotifyClick: () => void;
+  hideCompleted: boolean;
+  onToggleHideCompleted: () => void;
+}
 
 const quickPushTasks = [
   "Drink a glass of water",
@@ -16,14 +25,7 @@ const quickPushTasks = [
   "Wipe your desk",
 ];
 
-interface ActionPanelProps {
-  onReset: () => void;
-  waterCount: number;
-  onWaterAdd: () => void;
-  onSpotifyClick: () => void;
-}
-
-export function ActionPanel({ onReset, waterCount, onWaterAdd, onSpotifyClick }: ActionPanelProps) {
+export function ActionPanel({ onReset, waterCount, onWaterAdd, onSpotifyClick, hideCompleted, onToggleHideCompleted }: ActionPanelProps) {
   const [breathingOpen, setBreathingOpen] = useState(false);
   const [quickPushOpen, setQuickPushOpen] = useState(false);
   const [pomodoroOpen, setPomodoroOpen] = useState(false);
@@ -169,6 +171,28 @@ export function ActionPanel({ onReset, waterCount, onWaterAdd, onSpotifyClick }:
         >
           <Music className="h-4 w-4" />
           <span>Playlist</span>
+        </Button>
+
+        <div className="w-px h-5 bg-border" />
+
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={onToggleHideCompleted}
+          data-testid="button-hide-completed"
+          className="gap-2"
+        >
+          {hideCompleted ? (
+            <>
+              <EyeOff className="h-4 w-4" />
+              <span>Show Completed</span>
+            </>
+          ) : (
+            <>
+              <Eye className="h-4 w-4" />
+              <span>Hide Completed</span>
+            </>
+          )}
         </Button>
       </div>
 
