@@ -7,6 +7,7 @@ interface TaskListProps {
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
   filter: "all" | "recommended";
+  hideCompleted?: boolean;
 }
 
 const getDifficultyScore = (difficulty: Difficulty): number => {
@@ -32,9 +33,9 @@ const sortByDifficulty = (tasks: Task[]): Task[] => {
   });
 };
 
-export function TaskList({ tasks, motivationLevel, onToggle, onDelete, filter }: TaskListProps) {
+export function TaskList({ tasks, motivationLevel, onToggle, onDelete, filter, hideCompleted }: TaskListProps) {
   const incompleteTasks = tasks.filter((t) => !t.completed);
-  const completedTasks = tasks.filter((t) => t.completed);
+  const completedTasks = hideCompleted ? [] : tasks.filter((t) => t.completed);
   
   const recommendedDifficulty = getRecommendedDifficulty(motivationLevel);
   

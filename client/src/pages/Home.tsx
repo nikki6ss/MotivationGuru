@@ -122,7 +122,7 @@ export default function Home() {
   };
 
   const toggleHideCompleted = () => {
-    setHideCompleted((prev) => !prev);
+    setHideCompleted((prev: boolean) => !prev);
   };
 
   const tasksCompleted = tasks.filter((t) => t.completed).length;
@@ -210,6 +210,7 @@ export default function Home() {
                       onToggle={toggleTask}
                       onDelete={deleteTask}
                       filter={filter}
+                      hideCompleted={hideCompleted}
                     />
                   </TabsContent>
 
@@ -230,6 +231,8 @@ export default function Home() {
                   waterCount={waterCount}
                   onWaterAdd={() => setWaterCount((prev) => prev + 1)}
                   onSpotifyClick={handleSpotifyClick}
+                  hideCompleted={hideCompleted}
+                  onToggleHideCompleted={toggleHideCompleted}
                 />
               </div>
             </div>
