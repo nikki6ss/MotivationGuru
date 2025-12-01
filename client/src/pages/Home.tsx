@@ -283,11 +283,12 @@ export default function Home() {
             <div className="bg-muted p-4 rounded-lg space-y-2">
               <p className="font-medium text-sm">How to connect:</p>
               <ol className="text-sm space-y-2 text-muted-foreground list-decimal list-inside">
-                <li>Click on your <strong>Workspace</strong> name at the top left</li>
-                <li>Select <strong>"Connectors"</strong> from the sidebar menu</li>
-                <li>Click <strong>"Add new integration"</strong></li>
-                <li>Find and click on <strong>"Spotify"</strong> from the list</li>
-                <li>Follow the Spotify login and authorize the app</li>
+                <li>Look at the left sidebar of Replit</li>
+                <li>Find and click <strong>"Connectors"</strong> (it's usually in the sidebar menu)</li>
+                <li>Click <strong>"Add new integration"</strong> or <strong>"+"</strong> button</li>
+                <li>Search for and select <strong>"Spotify"</strong> from the list</li>
+                <li>Click to authorize - you'll be redirected to Spotify to login</li>
+                <li>Grant permission and return to Replit</li>
                 <li>Once connected, the playlist button will work!</li>
               </ol>
             </div>
