@@ -41,6 +41,10 @@ export default function Home() {
 
   const [filter, setFilter] = useState<"all" | "recommended">("recommended");
   const [activeTab, setActiveTab] = useState("tasks");
+  const [hideCompleted, setHideCompleted] = useState(() => {
+    const saved = localStorage.getItem("hideCompleted");
+    return saved ? JSON.parse(saved) : false;
+  });
 
   useEffect(() => {
     localStorage.setItem("motivation", motivation.toString());
@@ -61,6 +65,10 @@ export default function Home() {
   useEffect(() => {
     localStorage.setItem("waterCount", waterCount.toString());
   }, [waterCount]);
+
+  useEffect(() => {
+    localStorage.setItem("hideCompleted", JSON.stringify(hideCompleted));
+  }, [hideCompleted]);
 
   const addTask = (taskData: {
     title: string;
@@ -111,6 +119,10 @@ export default function Home() {
 
   const handleSpotifyClick = () => {
     alert("Click 'Setup' in the top right to connect your Spotify account!");
+  };
+
+  const toggleHideCompleted = () => {
+    setHideCompleted((prev) => !prev);
   };
 
   const tasksCompleted = tasks.filter((t) => t.completed).length;
