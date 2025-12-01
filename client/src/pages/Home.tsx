@@ -283,11 +283,12 @@ export default function Home() {
             <div className="bg-muted p-4 rounded-lg space-y-2">
               <p className="font-medium text-sm">How to connect:</p>
               <ol className="text-sm space-y-2 text-muted-foreground list-decimal list-inside">
-                <li>Click the "Setup" button in the top right (this menu)</li>
-                <li>Look for "Spotify" in the available integrations</li>
-                <li>Click on Spotify to authorize your account</li>
-                <li>Follow the Spotify OAuth flow to complete authentication</li>
-                <li>Once connected, the playlist feature will work!</li>
+                <li>Click on your <strong>Workspace</strong> name at the top left</li>
+                <li>Select <strong>"Connectors"</strong> from the sidebar menu</li>
+                <li>Click <strong>"Add new integration"</strong></li>
+                <li>Find and click on <strong>"Spotify"</strong> from the list</li>
+                <li>Follow the Spotify login and authorize the app</li>
+                <li>Once connected, the playlist button will work!</li>
               </ol>
             </div>
             <p className="text-xs text-muted-foreground">
