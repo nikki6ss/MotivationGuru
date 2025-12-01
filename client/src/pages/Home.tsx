@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { MotivationSlider } from "@/components/MotivationSlider";
-import { TaskForm } from "@/components/TaskForm";
+import { TaskCategoryModal } from "@/components/TaskCategoryModal";
 import { TaskList } from "@/components/TaskList";
 import { StatsPanel } from "@/components/StatsPanel";
 import { MotivationalMessage } from "@/components/MotivationalMessage";
@@ -42,12 +42,25 @@ export default function Home() {
     localStorage.setItem("streak", streak.toString());
   }, [streak]);
 
-  const addTask = (title: string, difficulty: Difficulty) => {
+  const addTask = (taskData: {
+    title: string;
+    difficulty: Difficulty;
+    category: string;
+    duration?: number;
+    hasTimer: boolean;
+    hasReminder: boolean;
+    reminderTime?: string;
+  }) => {
     const newTask: Task = {
       id: Date.now().toString(),
-      title,
-      difficulty,
+      title: taskData.title,
+      difficulty: taskData.difficulty,
       completed: false,
+      category: taskData.category,
+      duration: taskData.duration,
+      hasTimer: taskData.hasTimer,
+      hasReminder: taskData.hasReminder,
+      reminderTime: taskData.reminderTime,
     };
     setTasks((prev) => [newTask, ...prev]);
   };
@@ -100,13 +113,16 @@ export default function Home() {
 
           <div className="grid lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-6">
-              <Card className="p-6">
-                <h2 className="text-lg font-semibold mb-4">Add New Task</h2>
-                <TaskForm onSubmit={addTask} />
-              </Card>
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold">Your Tasks</h2>
+                <TaskCategoryModal 
+                  motivationLevel={motivation} 
+                  onAddTask={addTask} 
+                />
+              </div>
 
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
                   <TabsList>
                     <TabsTrigger value="tasks" data-testid="tab-tasks">
                       <ListTodo className="h-4 w-4 mr-2" />
