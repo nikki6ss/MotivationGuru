@@ -9,6 +9,7 @@ import { TaskCategoryModal, type CustomCategory } from "@/components/TaskCategor
 import { TaskList } from "@/components/TaskList";
 import { StatsPanel } from "@/components/StatsPanel";
 import { MotivationalMessage } from "@/components/MotivationalMessage";
+import { ActionPanel } from "@/components/ActionPanel";
 import type { Task, Difficulty } from "@/components/TaskCard";
 import { Sparkles, ListTodo, BarChart3 } from "lucide-react";
 
@@ -33,6 +34,11 @@ export default function Home() {
     return saved ? JSON.parse(saved) : [];
   });
 
+  const [waterCount, setWaterCount] = useState(() => {
+    const saved = localStorage.getItem("waterCount");
+    return saved ? parseInt(saved, 10) : 0;
+  });
+
   const [filter, setFilter] = useState<"all" | "recommended">("recommended");
   const [activeTab, setActiveTab] = useState("tasks");
 
@@ -51,6 +57,10 @@ export default function Home() {
   useEffect(() => {
     localStorage.setItem("customCategories", JSON.stringify(customCategories));
   }, [customCategories]);
+
+  useEffect(() => {
+    localStorage.setItem("waterCount", waterCount.toString());
+  }, [waterCount]);
 
   const addTask = (taskData: {
     title: string;
@@ -93,6 +103,14 @@ export default function Home() {
 
   const deleteTask = (id: string) => {
     setTasks((prev) => prev.filter((task) => task.id !== id));
+  };
+
+  const resetDailyTasks = () => {
+    setTasks((prev) => prev.map((task) => ({ ...task, completed: false })));
+  };
+
+  const handleSpotifyClick = () => {
+    alert("Click 'Setup' in the top right to connect your Spotify account!");
   };
 
   const tasksCompleted = tasks.filter((t) => t.completed).length;
@@ -212,6 +230,13 @@ export default function Home() {
           </div>
         </div>
       </main>
+
+      <ActionPanel
+        onReset={resetDailyTasks}
+        waterCount={waterCount}
+        onWaterAdd={() => setWaterCount((prev) => prev + 1)}
+        onSpotifyClick={handleSpotifyClick}
+      />
     </div>
   );
 }

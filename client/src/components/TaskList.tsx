@@ -39,7 +39,7 @@ export function TaskList({ tasks, motivationLevel, onToggle, onDelete, filter }:
   const recommendedDifficulty = getRecommendedDifficulty(motivationLevel);
   
   const filteredIncompleteTasks = filter === "recommended"
-    ? incompleteTasks.filter((t) => t.difficulty === recommendedDifficulty)
+    ? incompleteTasks.filter((t) => t.difficulty === recommendedDifficulty).slice(0, 3)
     : sortByDifficulty(incompleteTasks);
 
   const sortedCompletedTasks = sortByDifficulty(completedTasks);

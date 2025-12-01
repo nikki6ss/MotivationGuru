@@ -202,9 +202,8 @@ const getDifficultyFromMotivation = (baseDifficulty: 1 | 2 | 3, motivation: numb
   return "hard";
 };
 
-const getFilteredTasks = (tasks: TaskTemplate[], motivation: number): TaskTemplate[] => {
-  const targetDifficulty = motivation <= 3 ? 1 : motivation <= 7 ? 2 : 3;
-  return tasks.filter(t => t.baseDifficulty === targetDifficulty);
+const getFilteredTasks = (tasks: TaskTemplate[]): TaskTemplate[] => {
+  return tasks;
 };
 
 export function TaskCategoryModal({ motivationLevel, customCategories, onAddTask, onAddCategory }: TaskCategoryModalProps) {
