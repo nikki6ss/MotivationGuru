@@ -1,6 +1,11 @@
-import('./dist/index.cjs').then(module => {
-  module.default || module;
-}).catch(err => {
-  console.error('Failed to load server:', err);
-  process.exit(1);
-});
+import { app, initializeApp } from '../dist/index.cjs';
+
+let initialized = false;
+
+export default async (req, res) => {
+  if (!initialized) {
+    await initializeApp();
+    initialized = true;
+  }
+  app.handle(req, res);
+};
