@@ -3,7 +3,6 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { MotivationSlider } from "@/components/MotivationSlider";
 import { TaskCategoryModal, type CustomCategory } from "@/components/TaskCategoryModal";
@@ -12,7 +11,7 @@ import { StatsPanel } from "@/components/StatsPanel";
 import { MotivationalMessage } from "@/components/MotivationalMessage";
 import { ActionPanel } from "@/components/ActionPanel";
 import type { Task, Difficulty } from "@/components/TaskCard";
-import { Sparkles, ListTodo, BarChart3, Settings } from "lucide-react";
+import { Sparkles, ListTodo, BarChart3 } from "lucide-react";
 
 export default function Home() {
   const [motivation, setMotivation] = useState(() => {
@@ -46,7 +45,6 @@ export default function Home() {
     const saved = localStorage.getItem("hideCompleted");
     return saved ? JSON.parse(saved) : false;
   });
-  const [setupDialogOpen, setSetupDialogOpen] = useState(false);
 
   useEffect(() => {
     localStorage.setItem("motivation", motivation.toString());
@@ -120,7 +118,8 @@ export default function Home() {
   };
 
   const handleSpotifyClick = () => {
-    setSetupDialogOpen(true);
+    // Spotify integration requires Replit connectors which won't be available after publishing
+    alert("Spotify playlist feature requires Replit account connection.");
   };
 
   const toggleHideCompleted = () => {
@@ -138,16 +137,6 @@ export default function Home() {
             <span className="text-xl font-bold">MotiTask</span>
           </div>
           <div className="flex items-center gap-2">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => setSetupDialogOpen(true)}
-              data-testid="button-setup"
-              className="gap-2"
-            >
-              <Settings className="h-4 w-4" />
-              Setup
-            </Button>
             <ThemeToggle />
           </div>
         </div>
@@ -270,34 +259,6 @@ export default function Home() {
           </div>
         </div>
       </main>
-
-      <Dialog open={setupDialogOpen} onOpenChange={setSetupDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Connect Spotify</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              To use the Spotify playlist feature, you need to connect your Spotify account.
-            </p>
-            <div className="bg-muted p-4 rounded-lg space-y-2">
-              <p className="font-medium text-sm">How to connect:</p>
-              <ol className="text-sm space-y-2 text-muted-foreground list-decimal list-inside">
-                <li>Look at the left sidebar of Replit</li>
-                <li>Find and click <strong>"Connectors"</strong> (it's usually in the sidebar menu)</li>
-                <li>Click <strong>"Add new integration"</strong> or <strong>"+"</strong> button</li>
-                <li>Search for and select <strong>"Spotify"</strong> from the list</li>
-                <li>Click to authorize - you'll be redirected to Spotify to login</li>
-                <li>Grant permission and return to Replit</li>
-                <li>Once connected, the playlist button will work!</li>
-              </ol>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Spotify integration is powered by Replit's connector system. Your authentication is secure and managed by Replit.
-            </p>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
