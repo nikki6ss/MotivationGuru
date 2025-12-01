@@ -8,9 +8,10 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   Plus, BookOpen, Dumbbell, Sparkles as SparklesIcon, User, Palette, Heart, PenLine,
-  ArrowLeft, Clock, Bell, Play, Check, FolderPlus,
+  ArrowLeft, Clock, Bell, Play, Check, FolderPlus, ChevronLeft, ChevronRight,
   Music, Coffee, Briefcase, Home, ShoppingCart, Utensils, Camera, Gamepad2, Plane, Star
 } from "lucide-react";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday } from "date-fns";
 import type { Difficulty } from "./TaskCard";
 
 interface TaskTemplate {
@@ -217,6 +218,8 @@ export function TaskCategoryModal({ motivationLevel, customCategories, onAddTask
   const [hasTimer, setHasTimer] = useState(false);
   const [hasReminder, setHasReminder] = useState(false);
   const [reminderTime, setReminderTime] = useState("");
+  const [reminderDate, setReminderDate] = useState(new Date());
+  const [calendarMonth, setCalendarMonth] = useState(new Date());
   const [newCategoryName, setNewCategoryName] = useState("");
   const [newCategoryIcon, setNewCategoryIcon] = useState("Star");
   const [newCategoryColor, setNewCategoryColor] = useState(colorOptions[0].value);
@@ -241,6 +244,8 @@ export function TaskCategoryModal({ motivationLevel, customCategories, onAddTask
     setHasTimer(false);
     setHasReminder(false);
     setReminderTime("");
+    setReminderDate(new Date());
+    setCalendarMonth(new Date());
     setNewCategoryName("");
     setNewCategoryIcon("Star");
     setNewCategoryColor(colorOptions[0].value);
@@ -661,13 +666,85 @@ export function TaskCategoryModal({ motivationLevel, customCategories, onAddTask
                   />
                 </div>
                 {hasReminder && (
-                  <Input
-                    type="time"
-                    value={reminderTime}
-                    onChange={(e) => setReminderTime(e.target.value)}
-                    className="w-full"
-                    data-testid="input-reminder-time"
-                  />
+                  <div className="space-y-3">
+                    <div className="border rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="font-medium text-sm">{format(calendarMonth, "MMMM yyyy")}</h3>
+                        <div className="flex gap-1">
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1))}
+                            data-testid="button-calendar-prev"
+                          >
+                            <ChevronLeft className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1))}
+                            data-testid="button-calendar-next"
+                          >
+                            <ChevronRight className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-7 gap-1 mb-2">
+                        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(day => (
+                          <div key={day} className="text-center text-xs font-semibold text-muted-foreground py-1">
+                            {day}
+                          </div>
+                        ))}
+                      </div>
+                      
+                      <div className="grid grid-cols-7 gap-1">
+                        {(() => {
+                          const start = startOfMonth(calendarMonth);
+                          const end = endOfMonth(calendarMonth);
+                          const days = eachDayOfInterval({ start, end });
+                          const firstDayOfWeek = start.getDay();
+                          const emptyDays = Array(firstDayOfWeek).fill(null);
+                          
+                          return [...emptyDays, ...days].map((day, idx) => (
+                            <button
+                              key={idx}
+                              onClick={() => day && setReminderDate(day)}
+                              disabled={!day}
+                              className={`p-2 text-xs rounded transition-colors ${
+                                !day 
+                                  ? "invisible" 
+                                  : day.toDateString() === reminderDate.toDateString()
+                                    ? "bg-primary text-primary-foreground font-semibold"
+                                    : isToday(day)
+                                      ? "border border-primary text-primary"
+                                      : "hover:bg-muted"
+                              }`}
+                              data-testid={day ? `button-date-${format(day, "yyyy-MM-dd")}` : undefined}
+                            >
+                              {day && day.getDate()}
+                            </button>
+                          ));
+                        })()}
+                      </div>
+                      
+                      <div className="mt-3 text-sm text-muted-foreground text-center">
+                        Selected: {format(reminderDate, "MMM dd, yyyy")}
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="reminder-time">Reminder Time</Label>
+                      <Input
+                        id="reminder-time"
+                        type="time"
+                        value={reminderTime}
+                        onChange={(e) => setReminderTime(e.target.value)}
+                        className="w-full"
+                        data-testid="input-reminder-time"
+                      />
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
