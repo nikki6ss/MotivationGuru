@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
+import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { MotivationSlider } from "@/components/MotivationSlider";
-import { TaskCategoryModal } from "@/components/TaskCategoryModal";
+import { TaskCategoryModal, type CustomCategory } from "@/components/TaskCategoryModal";
 import { TaskList } from "@/components/TaskList";
 import { StatsPanel } from "@/components/StatsPanel";
 import { MotivationalMessage } from "@/components/MotivationalMessage";
@@ -27,6 +28,11 @@ export default function Home() {
     return saved ? parseInt(saved, 10) : 0;
   });
 
+  const [customCategories, setCustomCategories] = useState<CustomCategory[]>(() => {
+    const saved = localStorage.getItem("customCategories");
+    return saved ? JSON.parse(saved) : [];
+  });
+
   const [filter, setFilter] = useState<"all" | "recommended">("recommended");
   const [activeTab, setActiveTab] = useState("tasks");
 
@@ -41,6 +47,10 @@ export default function Home() {
   useEffect(() => {
     localStorage.setItem("streak", streak.toString());
   }, [streak]);
+
+  useEffect(() => {
+    localStorage.setItem("customCategories", JSON.stringify(customCategories));
+  }, [customCategories]);
 
   const addTask = (taskData: {
     title: string;
@@ -63,6 +73,10 @@ export default function Home() {
       reminderTime: taskData.reminderTime,
     };
     setTasks((prev) => [newTask, ...prev]);
+  };
+
+  const addCategory = (category: CustomCategory) => {
+    setCustomCategories((prev) => [...prev, category]);
   };
 
   const toggleTask = (id: string) => {
@@ -113,11 +127,13 @@ export default function Home() {
 
           <div className="grid lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-6">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between flex-wrap gap-4">
                 <h2 className="text-lg font-semibold">Your Tasks</h2>
                 <TaskCategoryModal 
                   motivationLevel={motivation} 
-                  onAddTask={addTask} 
+                  customCategories={customCategories}
+                  onAddTask={addTask}
+                  onAddCategory={addCategory}
                 />
               </div>
 
@@ -178,13 +194,19 @@ export default function Home() {
             </div>
 
             <div className="hidden lg:block">
-              <div className="sticky top-24">
+              <div className="sticky top-24 space-y-4">
                 <StatsPanel
                   tasksCompleted={tasksCompleted}
                   totalTasks={tasks.length}
                   streak={streak}
                   motivationLevel={motivation}
                 />
+                <Link href="/progress">
+                  <Button variant="outline" className="w-full gap-2" data-testid="button-view-progress">
+                    <BarChart3 className="h-4 w-4" />
+                    View Full Progress
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>

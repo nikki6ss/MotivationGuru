@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -8,13 +8,22 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   Plus, BookOpen, Dumbbell, Sparkles as SparklesIcon, User, Palette, Heart, PenLine,
-  ArrowLeft, Clock, Bell, Play, Check
+  ArrowLeft, Clock, Bell, Play, Check, FolderPlus,
+  Music, Coffee, Briefcase, Home, ShoppingCart, Utensils, Camera, Gamepad2, Plane, Star
 } from "lucide-react";
 import type { Difficulty } from "./TaskCard";
 
 interface TaskTemplate {
   title: string;
   baseDifficulty: 1 | 2 | 3;
+}
+
+export interface CustomCategory {
+  id: string;
+  name: string;
+  icon: string;
+  color: string;
+  tasks: TaskTemplate[];
 }
 
 interface Category {
@@ -25,7 +34,39 @@ interface Category {
   tasks: TaskTemplate[];
 }
 
-const categories: Category[] = [
+const iconOptions = [
+  { name: "BookOpen", icon: BookOpen },
+  { name: "Dumbbell", icon: Dumbbell },
+  { name: "Sparkles", icon: SparklesIcon },
+  { name: "User", icon: User },
+  { name: "Palette", icon: Palette },
+  { name: "Heart", icon: Heart },
+  { name: "Music", icon: Music },
+  { name: "Coffee", icon: Coffee },
+  { name: "Briefcase", icon: Briefcase },
+  { name: "Home", icon: Home },
+  { name: "ShoppingCart", icon: ShoppingCart },
+  { name: "Utensils", icon: Utensils },
+  { name: "Camera", icon: Camera },
+  { name: "Gamepad2", icon: Gamepad2 },
+  { name: "Plane", icon: Plane },
+  { name: "Star", icon: Star },
+];
+
+const colorOptions = [
+  { name: "Blue", value: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20" },
+  { name: "Orange", value: "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20" },
+  { name: "Emerald", value: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20" },
+  { name: "Purple", value: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20" },
+  { name: "Pink", value: "bg-pink-500/10 text-pink-600 dark:text-pink-400 border-pink-500/20" },
+  { name: "Rose", value: "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20" },
+  { name: "Cyan", value: "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20" },
+  { name: "Amber", value: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20" },
+  { name: "Indigo", value: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20" },
+  { name: "Teal", value: "bg-teal-500/10 text-teal-600 dark:text-teal-400 border-teal-500/20" },
+];
+
+const defaultCategories: Category[] = [
   {
     id: "study",
     name: "Study",
@@ -128,17 +169,11 @@ const categories: Category[] = [
       { title: "Plan something you're excited about", baseDifficulty: 3 },
     ],
   },
-  {
-    id: "custom",
-    name: "Custom",
-    icon: PenLine,
-    color: "bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-500/20",
-    tasks: [],
-  },
 ];
 
 interface TaskCategoryModalProps {
   motivationLevel: number;
+  customCategories: CustomCategory[];
   onAddTask: (task: {
     title: string;
     difficulty: Difficulty;
@@ -148,18 +183,19 @@ interface TaskCategoryModalProps {
     hasReminder: boolean;
     reminderTime?: string;
   }) => void;
+  onAddCategory: (category: CustomCategory) => void;
 }
 
-type Step = "categories" | "tasks" | "configure";
+type Step = "categories" | "tasks" | "configure" | "newCategory";
 
 const getDifficultyFromMotivation = (baseDifficulty: 1 | 2 | 3, motivation: number): Difficulty => {
   if (motivation <= 3) {
     return "easy";
   }
-  if (motivation <= 6) {
+  if (motivation <= 7) {
     if (baseDifficulty === 1) return "easy";
     if (baseDifficulty === 2) return "medium";
-    return "medium";
+    return "hard";
   }
   if (baseDifficulty === 1) return "easy";
   if (baseDifficulty === 2) return "medium";
@@ -167,19 +203,14 @@ const getDifficultyFromMotivation = (baseDifficulty: 1 | 2 | 3, motivation: numb
 };
 
 const getFilteredTasks = (tasks: TaskTemplate[], motivation: number): TaskTemplate[] => {
-  if (motivation <= 3) {
-    return tasks.filter(t => t.baseDifficulty <= 2);
-  }
-  if (motivation <= 6) {
-    return tasks;
-  }
-  return tasks;
+  const targetDifficulty = motivation <= 3 ? 1 : motivation <= 7 ? 2 : 3;
+  return tasks.filter(t => t.baseDifficulty === targetDifficulty);
 };
 
-export function TaskCategoryModal({ motivationLevel, onAddTask }: TaskCategoryModalProps) {
+export function TaskCategoryModal({ motivationLevel, customCategories, onAddTask, onAddCategory }: TaskCategoryModalProps) {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<Step>("categories");
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<Category | CustomCategory | null>(null);
   const [selectedTask, setSelectedTask] = useState<TaskTemplate | null>(null);
   const [customTitle, setCustomTitle] = useState("");
   const [customDifficulty, setCustomDifficulty] = useState<Difficulty>("medium");
@@ -187,6 +218,19 @@ export function TaskCategoryModal({ motivationLevel, onAddTask }: TaskCategoryMo
   const [hasTimer, setHasTimer] = useState(false);
   const [hasReminder, setHasReminder] = useState(false);
   const [reminderTime, setReminderTime] = useState("");
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [newCategoryIcon, setNewCategoryIcon] = useState("Star");
+  const [newCategoryColor, setNewCategoryColor] = useState(colorOptions[0].value);
+  const [assignToCategory, setAssignToCategory] = useState<string>("");
+
+  const safeCustomCategories = customCategories || [];
+  const allCategories = [
+    ...defaultCategories,
+    ...safeCustomCategories.map(cc => ({
+      ...cc,
+      icon: iconOptions.find(i => i.name === cc.icon)?.icon || Star,
+    })),
+  ];
 
   const resetState = () => {
     setStep("categories");
@@ -198,15 +242,24 @@ export function TaskCategoryModal({ motivationLevel, onAddTask }: TaskCategoryMo
     setHasTimer(false);
     setHasReminder(false);
     setReminderTime("");
+    setNewCategoryName("");
+    setNewCategoryIcon("Star");
+    setNewCategoryColor(colorOptions[0].value);
+    setAssignToCategory("");
   };
 
   const handleCategorySelect = (category: Category) => {
     setSelectedCategory(category);
-    if (category.id === "custom") {
-      setStep("configure");
-    } else {
-      setStep("tasks");
-    }
+    setStep("tasks");
+  };
+
+  const handleCustomClick = () => {
+    setSelectedCategory({ id: "custom", name: "Custom", icon: PenLine, color: "", tasks: [] });
+    setStep("configure");
+  };
+
+  const handleNewCategoryClick = () => {
+    setStep("newCategory");
   };
 
   const handleTaskSelect = (task: TaskTemplate) => {
@@ -225,21 +278,51 @@ export function TaskCategoryModal({ motivationLevel, onAddTask }: TaskCategoryMo
     } else if (step === "tasks") {
       setStep("categories");
       setSelectedCategory(null);
+    } else if (step === "newCategory") {
+      setStep("categories");
     }
+  };
+
+  const handleCreateCategory = () => {
+    if (!newCategoryName.trim()) return;
+
+    const newCategory: CustomCategory = {
+      id: `custom-${Date.now()}`,
+      name: newCategoryName.trim(),
+      icon: newCategoryIcon,
+      color: newCategoryColor,
+      tasks: [],
+    };
+
+    onAddCategory(newCategory);
+    setStep("categories");
+    setNewCategoryName("");
+    setNewCategoryIcon("Star");
+    setNewCategoryColor(colorOptions[0].value);
   };
 
   const handleSubmit = () => {
     const title = selectedCategory?.id === "custom" ? customTitle : selectedTask?.title || "";
-    const difficulty = selectedCategory?.id === "custom" 
-      ? customDifficulty 
-      : getDifficultyFromMotivation(selectedTask?.baseDifficulty || 2, motivationLevel);
+    
+    let difficulty: Difficulty;
+    if (selectedCategory?.id === "custom") {
+      difficulty = customDifficulty;
+    } else if (selectedTask) {
+      difficulty = getDifficultyFromMotivation(selectedTask.baseDifficulty, motivationLevel);
+    } else {
+      difficulty = "medium";
+    }
 
     if (!title.trim()) return;
+
+    const categoryId = selectedCategory?.id === "custom" && assignToCategory 
+      ? assignToCategory 
+      : selectedCategory?.id || "custom";
 
     onAddTask({
       title,
       difficulty,
-      category: selectedCategory?.id || "custom",
+      category: categoryId,
       duration: parseInt(duration, 10),
       hasTimer,
       hasReminder,
@@ -250,9 +333,13 @@ export function TaskCategoryModal({ motivationLevel, onAddTask }: TaskCategoryMo
     resetState();
   };
 
-  const filteredTasks = selectedCategory 
+  const filteredTasks = selectedCategory && 'tasks' in selectedCategory
     ? getFilteredTasks(selectedCategory.tasks, motivationLevel)
     : [];
+
+  const getIconComponent = (iconName: string) => {
+    return iconOptions.find(i => i.name === iconName)?.icon || Star;
+  };
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => {
@@ -283,29 +370,120 @@ export function TaskCategoryModal({ motivationLevel, onAddTask }: TaskCategoryMo
               {step === "categories" && "Choose a Category"}
               {step === "tasks" && selectedCategory?.name}
               {step === "configure" && "Configure Task"}
+              {step === "newCategory" && "Create New Category"}
             </DialogTitle>
           </div>
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto py-4">
           {step === "categories" && (
-            <div className="grid grid-cols-2 gap-3">
-              {categories.map((category) => {
-                const IconComponent = category.icon;
-                return (
-                  <Card
-                    key={category.id}
-                    className={`p-4 cursor-pointer transition-all hover-elevate ${category.color} border`}
-                    onClick={() => handleCategorySelect(category)}
-                    data-testid={`button-category-${category.id}`}
-                  >
-                    <div className="flex flex-col items-center gap-2 text-center">
-                      <IconComponent className="h-8 w-8" />
-                      <span className="font-medium">{category.name}</span>
-                    </div>
-                  </Card>
-                );
-              })}
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                {allCategories.map((category) => {
+                  const IconComponent = category.icon;
+                  return (
+                    <Card
+                      key={category.id}
+                      className={`p-4 cursor-pointer transition-all hover-elevate ${category.color} border`}
+                      onClick={() => handleCategorySelect(category)}
+                      data-testid={`button-category-${category.id}`}
+                    >
+                      <div className="flex flex-col items-center gap-2 text-center">
+                        <IconComponent className="h-8 w-8" />
+                        <span className="font-medium">{category.name}</span>
+                      </div>
+                    </Card>
+                  );
+                })}
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 pt-2 border-t">
+                <Card
+                  className="p-4 cursor-pointer transition-all hover-elevate bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-500/20 border"
+                  onClick={handleCustomClick}
+                  data-testid="button-category-custom"
+                >
+                  <div className="flex flex-col items-center gap-2 text-center">
+                    <PenLine className="h-8 w-8" />
+                    <span className="font-medium">Custom</span>
+                  </div>
+                </Card>
+                <Card
+                  className="p-4 cursor-pointer transition-all hover-elevate bg-primary/10 text-primary border-primary/20 border"
+                  onClick={handleNewCategoryClick}
+                  data-testid="button-new-category"
+                >
+                  <div className="flex flex-col items-center gap-2 text-center">
+                    <FolderPlus className="h-8 w-8" />
+                    <span className="font-medium">New Category</span>
+                  </div>
+                </Card>
+              </div>
+            </div>
+          )}
+
+          {step === "newCategory" && (
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="category-name">Category Name</Label>
+                <Input
+                  id="category-name"
+                  value={newCategoryName}
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                  placeholder="Enter category name"
+                  data-testid="input-category-name"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Icon</Label>
+                <div className="grid grid-cols-8 gap-2">
+                  {iconOptions.map((option) => {
+                    const IconComp = option.icon;
+                    return (
+                      <Button
+                        key={option.name}
+                        variant={newCategoryIcon === option.name ? "default" : "outline"}
+                        size="icon"
+                        onClick={() => setNewCategoryIcon(option.name)}
+                        data-testid={`button-icon-${option.name}`}
+                      >
+                        <IconComp className="h-4 w-4" />
+                      </Button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Color</Label>
+                <div className="grid grid-cols-5 gap-2">
+                  {colorOptions.map((option) => (
+                    <Button
+                      key={option.name}
+                      variant="outline"
+                      size="sm"
+                      className={`${option.value} ${newCategoryColor === option.value ? "ring-2 ring-primary" : ""}`}
+                      onClick={() => setNewCategoryColor(option.value)}
+                      data-testid={`button-color-${option.name}`}
+                    >
+                      {option.name}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="pt-4">
+                <Card className={`p-4 ${newCategoryColor} border`}>
+                  <div className="flex flex-col items-center gap-2 text-center">
+                    {(() => {
+                      const PreviewIcon = getIconComponent(newCategoryIcon);
+                      return <PreviewIcon className="h-8 w-8" />;
+                    })()}
+                    <span className="font-medium">{newCategoryName || "Preview"}</span>
+                  </div>
+                </Card>
+              </div>
             </div>
           )}
 
@@ -336,9 +514,14 @@ export function TaskCategoryModal({ motivationLevel, onAddTask }: TaskCategoryMo
                   );
                 })
               ) : (
-                <p className="text-center text-muted-foreground py-8">
-                  No tasks available for your current energy level.
-                </p>
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground mb-4">
+                    No tasks match your current energy level in this category.
+                  </p>
+                  <Button variant="outline" onClick={handleCustomClick}>
+                    Create Custom Task
+                  </Button>
+                </div>
               )}
             </div>
           )}
@@ -373,6 +556,22 @@ export function TaskCategoryModal({ motivationLevel, onAddTask }: TaskCategoryMo
                         </Button>
                       ))}
                     </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Assign to Category (Optional)</Label>
+                    <Select value={assignToCategory} onValueChange={setAssignToCategory}>
+                      <SelectTrigger data-testid="select-assign-category">
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="custom">No category</SelectItem>
+                        {allCategories.map((cat) => (
+                          <SelectItem key={cat.id} value={cat.id}>
+                            {cat.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
               )}
@@ -459,6 +658,20 @@ export function TaskCategoryModal({ motivationLevel, onAddTask }: TaskCategoryMo
             >
               <Plus className="h-4 w-4" />
               Add Task
+            </Button>
+          </div>
+        )}
+
+        {step === "newCategory" && (
+          <div className="flex-shrink-0 pt-4 border-t">
+            <Button 
+              onClick={handleCreateCategory} 
+              className="w-full gap-2"
+              disabled={!newCategoryName.trim()}
+              data-testid="button-create-category"
+            >
+              <FolderPlus className="h-4 w-4" />
+              Create Category
             </Button>
           </div>
         )}
