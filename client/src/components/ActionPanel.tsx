@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { RotateCcw, Zap, Wind, BookOpen, Droplets, Music } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
@@ -34,7 +33,6 @@ export function ActionPanel({ onReset, waterCount, onWaterAdd, onSpotifyClick }:
   const [pomodoroRunning, setPomodoroRunning] = useState(false);
   const [quickPushTask, setQuickPushTask] = useState("");
 
-  // Breathing animation
   useEffect(() => {
     if (!breathingOpen) return;
     
@@ -59,7 +57,6 @@ export function ActionPanel({ onReset, waterCount, onWaterAdd, onSpotifyClick }:
     return () => clearInterval(timer);
   }, [breathingOpen, breathingPhase]);
 
-  // Pomodoro timer
   useEffect(() => {
     if (!pomodoroRunning || pomodoroTime <= 0) return;
 
@@ -89,81 +86,76 @@ export function ActionPanel({ onReset, waterCount, onWaterAdd, onSpotifyClick }:
 
   return (
     <>
-      <div className="fixed bottom-4 left-4 z-40">
-        <Card className="p-3 space-y-2 bg-background/95 backdrop-blur border shadow-lg">
-          <Button
-            size="sm"
-            variant="outline"
-            className="w-full justify-start gap-2 text-xs"
-            onClick={onReset}
-            data-testid="button-reset-tasks"
-          >
-            <RotateCcw className="h-3 w-3" />
-            Reset
-          </Button>
+      <div className="flex flex-wrap gap-2">
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={onReset}
+          data-testid="button-reset-tasks"
+          title="Reset tasks"
+        >
+          <RotateCcw className="h-4 w-4" />
+        </Button>
 
-          <Button
-            size="sm"
-            variant="outline"
-            className="w-full justify-start gap-2 text-xs"
-            onClick={() => {
-              showRandomQuickPush();
-              setQuickPushOpen(true);
-            }}
-            data-testid="button-quick-push"
-          >
-            <Zap className="h-3 w-3" />
-            Quick Push
-          </Button>
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={() => {
+            showRandomQuickPush();
+            setQuickPushOpen(true);
+          }}
+          data-testid="button-quick-push"
+          title="Quick dopamine boost"
+        >
+          <Zap className="h-4 w-4" />
+        </Button>
 
-          <Button
-            size="sm"
-            variant="outline"
-            className="w-full justify-start gap-2 text-xs"
-            onClick={() => {
-              setBreathingPhase("inhale");
-              setBreathingTime(4);
-              setBreathingOpen(true);
-            }}
-            data-testid="button-breath"
-          >
-            <Wind className="h-3 w-3" />
-            Breath
-          </Button>
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={() => {
+            setBreathingPhase("inhale");
+            setBreathingTime(4);
+            setBreathingOpen(true);
+          }}
+          data-testid="button-breath"
+          title="Guided breathing"
+        >
+          <Wind className="h-4 w-4" />
+        </Button>
 
-          <Button
-            size="sm"
-            variant="outline"
-            className="w-full justify-start gap-2 text-xs"
-            onClick={() => setPomodoroOpen(true)}
-            data-testid="button-study"
-          >
-            <BookOpen className="h-3 w-3" />
-            Study
-          </Button>
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={() => setPomodoroOpen(true)}
+          data-testid="button-study"
+          title="Pomodoro timer"
+        >
+          <BookOpen className="h-4 w-4" />
+        </Button>
 
-          <Button
-            size="sm"
-            variant="outline"
-            className="w-full justify-start gap-2 text-xs"
-            onClick={onWaterAdd}
-            data-testid="button-water"
-          >
-            <Droplets className="h-3 w-3" />
-            Water ({waterCount})
-          </Button>
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={onWaterAdd}
+          data-testid="button-water"
+          title={`Water count: ${waterCount}`}
+        >
+          <div className="flex items-center gap-1">
+            <Droplets className="h-4 w-4" />
+            <span className="text-xs">{waterCount}</span>
+          </div>
+        </Button>
 
-          <Button
-            size="sm"
-            variant="outline"
-            className="w-full justify-start gap-2 text-xs"
-            onClick={onSpotifyClick}
-            data-testid="button-spotify"
-          >
-            <Music className="h-3 w-3" />
-            Playlist
-          </Button>
-        </Card>
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={onSpotifyClick}
+          data-testid="button-spotify"
+          title="Connect Spotify"
+        >
+          <Music className="h-4 w-4" />
+        </Button>
       </div>
 
       {/* Breathing Dialog */}

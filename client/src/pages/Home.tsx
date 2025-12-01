@@ -155,7 +155,7 @@ export default function Home() {
                 />
               </div>
 
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full flex flex-col">
                 <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
                   <TabsList>
                     <TabsTrigger value="tasks" data-testid="tab-tasks">
@@ -190,25 +190,36 @@ export default function Home() {
                   )}
                 </div>
 
-                <TabsContent value="tasks" className="mt-0">
-                  <TaskList
-                    tasks={tasks}
-                    motivationLevel={motivation}
-                    onToggle={toggleTask}
-                    onDelete={deleteTask}
-                    filter={filter}
-                  />
-                </TabsContent>
+                <div className="flex-1 overflow-y-auto">
+                  <TabsContent value="tasks" className="mt-0">
+                    <TaskList
+                      tasks={tasks}
+                      motivationLevel={motivation}
+                      onToggle={toggleTask}
+                      onDelete={deleteTask}
+                      filter={filter}
+                    />
+                  </TabsContent>
 
-                <TabsContent value="stats" className="lg:hidden mt-0">
-                  <StatsPanel
-                    tasksCompleted={tasksCompleted}
-                    totalTasks={tasks.length}
-                    streak={streak}
-                    motivationLevel={motivation}
-                  />
-                </TabsContent>
+                  <TabsContent value="stats" className="lg:hidden mt-0">
+                    <StatsPanel
+                      tasksCompleted={tasksCompleted}
+                      totalTasks={tasks.length}
+                      streak={streak}
+                      motivationLevel={motivation}
+                    />
+                  </TabsContent>
+                </div>
               </Tabs>
+
+              <div className="pt-4 border-t">
+                <ActionPanel
+                  onReset={resetDailyTasks}
+                  waterCount={waterCount}
+                  onWaterAdd={() => setWaterCount((prev) => prev + 1)}
+                  onSpotifyClick={handleSpotifyClick}
+                />
+              </div>
             </div>
 
             <div className="hidden lg:block">
@@ -230,13 +241,6 @@ export default function Home() {
           </div>
         </div>
       </main>
-
-      <ActionPanel
-        onReset={resetDailyTasks}
-        waterCount={waterCount}
-        onWaterAdd={() => setWaterCount((prev) => prev + 1)}
-        onSpotifyClick={handleSpotifyClick}
-      />
     </div>
   );
 }
