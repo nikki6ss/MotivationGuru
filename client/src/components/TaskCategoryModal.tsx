@@ -333,7 +333,7 @@ export function TaskCategoryModal({ motivationLevel, customCategories, onAddTask
   };
 
   const filteredTasks = selectedCategory && 'tasks' in selectedCategory
-    ? getFilteredTasks(selectedCategory.tasks, motivationLevel)
+    ? getFilteredTasks(selectedCategory.tasks)
     : [];
 
   const getIconComponent = (iconName: string) => {
@@ -487,41 +487,68 @@ export function TaskCategoryModal({ motivationLevel, customCategories, onAddTask
           )}
 
           {step === "tasks" && selectedCategory && (
-            <div className="space-y-2">
-              {filteredTasks.length > 0 ? (
-                filteredTasks.map((task, index) => {
-                  const difficulty = getDifficultyFromMotivation(task.baseDifficulty, motivationLevel);
-                  const difficultyColors = {
-                    easy: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
-                    medium: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
-                    hard: "bg-rose-500/10 text-rose-600 dark:text-rose-400",
-                  };
-                  return (
-                    <Card
-                      key={index}
-                      className="p-4 cursor-pointer transition-all hover-elevate"
-                      onClick={() => handleTaskSelect(task)}
-                      data-testid={`button-task-${index}`}
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="font-medium">{task.title}</span>
-                        <span className={`text-xs px-2 py-1 rounded-full ${difficultyColors[difficulty]}`}>
-                          {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
-                        </span>
-                      </div>
-                    </Card>
-                  );
-                })
-              ) : (
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground mb-4">
-                    No tasks match your current energy level in this category.
-                  </p>
-                  <Button variant="outline" onClick={handleCustomClick}>
-                    Create Custom Task
-                  </Button>
+            <div className="space-y-4">
+              {filteredTasks.length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium text-muted-foreground">Recommended for you</h4>
+                  {filteredTasks.map((task, index) => {
+                    const difficulty = getDifficultyFromMotivation(task.baseDifficulty, motivationLevel);
+                    const difficultyColors = {
+                      easy: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+                      medium: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+                      hard: "bg-rose-500/10 text-rose-600 dark:text-rose-400",
+                    };
+                    return (
+                      <Card
+                        key={index}
+                        className="p-4 cursor-pointer transition-all hover-elevate"
+                        onClick={() => handleTaskSelect(task)}
+                        data-testid={`button-task-${index}`}
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="font-medium">{task.title}</span>
+                          <span className={`text-xs px-2 py-1 rounded-full ${difficultyColors[difficulty]}`}>
+                            {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
+                          </span>
+                        </div>
+                      </Card>
+                    );
+                  })}
                 </div>
               )}
+              
+              <div className="space-y-2 border-t pt-4">
+                <h4 className="text-sm font-medium text-muted-foreground">All tasks</h4>
+                <div className="space-y-2 max-h-48 overflow-y-auto">
+                  {selectedCategory.tasks.map((task, index) => {
+                    const actualDifficulty = getDifficultyFromMotivation(task.baseDifficulty, motivationLevel);
+                    const difficultyColors = {
+                      easy: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+                      medium: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+                      hard: "bg-rose-500/10 text-rose-600 dark:text-rose-400",
+                    };
+                    return (
+                      <Card
+                        key={`all-${index}`}
+                        className="p-3 cursor-pointer transition-all hover-elevate"
+                        onClick={() => handleTaskSelect(task)}
+                        data-testid={`button-all-task-${index}`}
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="text-sm">{task.title}</span>
+                          <span className={`text-xs px-2 py-1 rounded-full ${difficultyColors[actualDifficulty]}`}>
+                            {actualDifficulty.charAt(0).toUpperCase() + actualDifficulty.slice(1)}
+                          </span>
+                        </div>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <Button variant="outline" onClick={handleCustomClick} className="w-full">
+                Create Custom Task
+              </Button>
             </div>
           )}
 
