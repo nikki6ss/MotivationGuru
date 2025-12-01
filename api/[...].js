@@ -1,3 +1,11 @@
-import app from '../dist/index.cjs';
+import { createRequire } from 'module';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 
-export default app;
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const require = createRequire(import.meta.url);
+
+// Import the CommonJS built server
+const appModule = require(join(__dirname, '../dist/index.cjs'));
+
+export default appModule;
