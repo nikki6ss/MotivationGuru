@@ -86,32 +86,38 @@ export function ActionPanel({ onReset, waterCount, onWaterAdd, onSpotifyClick }:
 
   return (
     <>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap items-center gap-0">
         <Button
-          size="icon"
+          size="sm"
           variant="ghost"
           onClick={onReset}
           data-testid="button-reset-tasks"
-          title="Reset tasks"
+          className="gap-2"
         >
           <RotateCcw className="h-4 w-4" />
+          <span>Reset</span>
         </Button>
 
+        <div className="w-px h-5 bg-border" />
+
         <Button
-          size="icon"
+          size="sm"
           variant="ghost"
           onClick={() => {
             showRandomQuickPush();
             setQuickPushOpen(true);
           }}
           data-testid="button-quick-push"
-          title="Quick dopamine boost"
+          className="gap-2"
         >
           <Zap className="h-4 w-4" />
+          <span>Quick Push</span>
         </Button>
 
+        <div className="w-px h-5 bg-border" />
+
         <Button
-          size="icon"
+          size="sm"
           variant="ghost"
           onClick={() => {
             setBreathingPhase("inhale");
@@ -119,42 +125,50 @@ export function ActionPanel({ onReset, waterCount, onWaterAdd, onSpotifyClick }:
             setBreathingOpen(true);
           }}
           data-testid="button-breath"
-          title="Guided breathing"
+          className="gap-2"
         >
           <Wind className="h-4 w-4" />
+          <span>Breath</span>
         </Button>
 
+        <div className="w-px h-5 bg-border" />
+
         <Button
-          size="icon"
+          size="sm"
           variant="ghost"
           onClick={() => setPomodoroOpen(true)}
           data-testid="button-study"
-          title="Pomodoro timer"
+          className="gap-2"
         >
           <BookOpen className="h-4 w-4" />
+          <span>Study</span>
         </Button>
 
+        <div className="w-px h-5 bg-border" />
+
         <Button
-          size="icon"
+          size="sm"
           variant="ghost"
           onClick={onWaterAdd}
           data-testid="button-water"
-          title={`Water count: ${waterCount}`}
+          className="gap-2"
         >
-          <div className="flex items-center gap-1">
-            <Droplets className="h-4 w-4" />
-            <span className="text-xs">{waterCount}</span>
-          </div>
+          <Droplets className="h-4 w-4" />
+          <span>Water</span>
+          <span className="text-xs font-medium">({waterCount})</span>
         </Button>
 
+        <div className="w-px h-5 bg-border" />
+
         <Button
-          size="icon"
+          size="sm"
           variant="ghost"
           onClick={onSpotifyClick}
           data-testid="button-spotify"
-          title="Connect Spotify"
+          className="gap-2"
         >
           <Music className="h-4 w-4" />
+          <span>Playlist</span>
         </Button>
       </div>
 
